@@ -67,7 +67,10 @@ void searchWord(TrieNode* root, bool hash[], string str)
 {
     // if we found word in trie / dictionary 
     if (root->isLeaf == true)
+    {
         cout << str << endl;
+    }
+
 
     // traverse all child's of current root 
     for (int i = 0; i < ALPHABET_SIZE; i++)
@@ -79,9 +82,9 @@ void searchWord(TrieNode* root, bool hash[], string str)
             // add current character 
             char c = i + 'a';
 
-            // Recursively search reaming character of word 
-            // in trie 
+            // Recursively search reaming character of word in trie 
             searchWord(root->children[i], hash, str + c);
+            hash[i] = true;
         }
     }
 }
@@ -113,8 +116,9 @@ void PrintAllWords(char Arr[], TrieNode* root, int n)
         if (hash[i] == true && pChild->children[i] != NULL)
         {
             hash[i] = false;
-            str = str + (char)i + 'a';
+            str += (i + 'a');
             searchWord(pChild->children[i], hash, str);
+            hash[i] = true;
             str = "";
         }
     }
@@ -140,7 +144,7 @@ int main()
         }
     }
     inFile.close();
-    char in[] = { 'a', 'c', 'e', 'p' };
+    char in[] = { 'a', 'e' , 'l', 'p', 'p' };
     int n = sizeof(in) / sizeof(in[0]);
     PrintAllWords(in, trie, n);
     return 0;
