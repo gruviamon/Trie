@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <fstream>
 #include <string>
+#include <vector>
 using namespace std;
 
 #define ALPHABET_SIZE 26
@@ -63,41 +64,42 @@ bool search(struct TrieNode* root, string key)
 
 // A recursive function to print all possible valid 
 // words present in array 
-void searchWord(TrieNode* root, bool hash[], string str)
+void searchWord(TrieNode* root, int hash[], string str, vector<string> &res)
 {
     // if we found word in trie / dictionary 
     if (root->isLeaf == true)
     {
-        cout << str << endl;
+        res.push_back(str);
     }
 
 
     // traverse all child's of current root 
     for (int i = 0; i < ALPHABET_SIZE; i++)
     {
-        if (hash[i] == true && root->children[i] != NULL)
+        if (hash[i] != 0 && root->children[i] != NULL)
         {
-            hash[i] = false;
+            hash[i] --;
 
             // add current character 
             char c = i + 'a';
 
             // Recursively search reaming character of word in trie 
-            searchWord(root->children[i], hash, str + c);
-            hash[i] = true;
+            searchWord(root->children[i], hash, str + c, res);
+            hash[i] ++;
         }
     }
 }
 
-// Prints all words present in dictionary. 
-void PrintAllWords(char Arr[], TrieNode* root, int n)
+// return a vector include all words present in dictionary. 
+vector<string> PrintAllWords(char Arr[], TrieNode* root, int n)
 {
+    vector <string> res;
     // mảng hash lưu các kí tự có trong mảng đầu vào
-    bool hash[ALPHABET_SIZE];
+    int hash[ALPHABET_SIZE] = {};
 
     for (int i = 0; i < n; i++)
     {
-        hash[Arr[i] - 'a'] = true;
+        hash[Arr[i] - 'a'] ++;
     }
 
     // tempary node 
@@ -111,17 +113,28 @@ void PrintAllWords(char Arr[], TrieNode* root, int n)
     for (int i = 0; i < ALPHABET_SIZE; i++)
     {
         // we start searching for word in dictionary 
-        // if we found a character which is child 
-        // of Trie root 
-        if (hash[i] == true && pChild->children[i] != NULL)
+        // if we found a character which is child of Trie root 
+        if (hash[i] != 0 && pChild->children[i] != NULL)
         {
-            hash[i] = false;
+            hash[i] --;
             str += (i + 'a');
-            searchWord(pChild->children[i], hash, str);
-            hash[i] = true;
+            searchWord(pChild->children[i], hash, str, res);
+            hash[i] ++;
             str = "";
         }
     }
+    return res;
+}
+
+string deleteSpace(string str)
+{
+    string res = "";
+    for (int i = 0; i < str.length(); i++)
+    {
+        if (str[i] == ' ') continue;
+        res += str[i];
+    }
+    return res;
 }
 
 int main()
@@ -144,9 +157,35 @@ int main()
         }
     }
     inFile.close();
-    char in[] = { 'a', 'e' , 'l', 'p', 'p' };
-    int n = sizeof(in) / sizeof(in[0]);
-    PrintAllWords(in, trie, n);
+    
+    string temp;
+    getline(cin, temp);
+
+    temp = deleteSpace(temp);
+
+    int in_size = temp.length();
+    char* in = new char[in_size];
+    for (int i = 0; i < in_size; i++)
+    {
+        in[i] = (char)temp[i];
+    }
+
+    vector<string> res = PrintAllWords(in, trie, in_size);
+
+    for (int i = 0; i < res.size(); i++)
+    {
+        if (res[i].length() < 3)
+        {
+            res.erase(res.begin() + i);
+            i--;
+        }
+    }
+
+    cout << res.size() << endl;
+    for (string i : res)
+    {
+        cout << i << endl;
+    }
     return 0;
 }
 
