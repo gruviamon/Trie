@@ -29,7 +29,7 @@ TrieNode* getNode(void)
 // If the key is prefix of trie node, just marks leaf node 
 void insert(TrieNode* root, string key)
 {
-    struct TrieNode* pCrawl = root; // con trỏ dùng để duyệt cây
+    TrieNode* pCrawl = root; // con trỏ dùng để duyệt cây
 
     for (int i = 0; i < key.length(); i++)
     {
@@ -48,7 +48,7 @@ void insert(TrieNode* root, string key)
 // Returns true if key presents in trie, else false 
 bool search(struct TrieNode* root, string key)
 {
-    struct TrieNode* pCrawl = root;
+    TrieNode* pCrawl = root;
 
     for (int i = 0; i < key.length(); i++)
     {
@@ -72,7 +72,6 @@ void searchWord(TrieNode* root, int hash[], string str, vector<string> &res)
         res.push_back(str);
     }
 
-
     // traverse all child's of current root 
     for (int i = 0; i < ALPHABET_SIZE; i++)
     {
@@ -91,7 +90,7 @@ void searchWord(TrieNode* root, int hash[], string str, vector<string> &res)
 }
 
 // return a vector include all words present in dictionary. 
-vector<string> PrintAllWords(char Arr[], TrieNode* root, int n)
+vector<string> AllWords(char Arr[], TrieNode* root, int n)
 {
     vector <string> res;
     // mảng hash lưu các kí tự có trong mảng đầu vào
@@ -139,27 +138,34 @@ string deleteSpace(string str)
 
 int main()
 {
-    ifstream inFile("Dic.txt");
-    if (!inFile)
+    ifstream DicFile("Dic.txt");
+    if (!DicFile)
     {
-        cout << "no";
+        cout << "Dic.txt not found";
         return 0;
     }
-
+    // 2.1 Tạo Trie từ file Dic.txt
     string key;
     TrieNode* trie = getNode();
-    while (!inFile.eof())
+    while (!DicFile.eof())
     {
-        getline(inFile, key);
+        getline(DicFile, key);
         if (!search(trie, key))
         {
             insert(trie, key);
         }
     }
-    inFile.close();
+    DicFile.close();
     
+    ifstream inFile("input.txt");
+    if (!inFile)
+    {
+        cout << "input.txt not found";
+        return 0;
+    }
     string temp;
-    getline(cin, temp);
+    getline(inFile, temp);
+    inFile.close();
 
     temp = deleteSpace(temp);
 
@@ -170,8 +176,9 @@ int main()
         in[i] = (char)temp[i];
     }
 
-    vector<string> res = PrintAllWords(in, trie, in_size);
+    vector<string> res = AllWords(in, trie, in_size);
 
+    // Xóa các từ không thỏa mãn yêu cầu (độ dài ngắn hơn 3)
     for (int i = 0; i < res.size(); i++)
     {
         if (res[i].length() < 3)
@@ -181,11 +188,13 @@ int main()
         }
     }
 
-    cout << res.size() << endl;
+    ofstream outFile("output.txt");
+    outFile << res.size() << endl;
     for (string i : res)
     {
-        cout << i << endl;
+        outFile << i << endl;
     }
+    outFile.close();
     return 0;
 }
 
